@@ -133,7 +133,7 @@ Future<void> download(String id) async {
   await output.close();
 }
 
-  String youtubelink = "https://www.youtube.com/watch?v=250rS-RvwlU";
+  String youtubelink = "https://www.youtube.com/watch?v=ohFxsyrQQ68";
   Future<void> _downloadvideo(youtubelink) async{
     final yt = YoutubeExplode();
     final video = await yt.videos.get(youtubelink);
@@ -174,10 +174,27 @@ Future<void> download(String id) async {
   }
 
   downloadFunc() async {
-    String url = await getDownloadUrl("4ZXoY_0dT7I");
+    String url = await getDownloadUrl("13gcZ1Chayk");
     print(url);
   }
 
+  Future<void> listApplicationDocumentsDirectories() async {
+    Directory dir = await getApplicationDocumentsDirectory();
+    if (dir.existsSync()) {
+      List<FileSystemEntity> filesAndDirectories = dir.listSync();
+      List<Directory> directories = [];
+
+      for (var entity in filesAndDirectories) {
+        if (entity is Directory) {
+          directories.add(entity);
+        }
+      }
+
+      for (var subDir in directories) {
+        print("Directory: ${subDir.path}");
+      }
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -235,23 +252,80 @@ class VideoPlayerApp extends StatefulWidget {
 
 class _VideoPlayerAppState extends State<VideoPlayerApp> {
   late VideoPlayerController _controller;
+  late List controllerList = [];
 
   @override
   void initState() {
     super.initState();
     _controller = VideoPlayerController.file(
       // Replace with the path to your video file
-      File('/data/user/0/com.example.youtube_explode_test/app_flutter/video/【Deemo】Wings of piano (FULL) 弾いてみた.3gpp'),
+      File('/data/user/0/com.example.youtube_explode_test/app_flutter/video/SennaRin「melt」Music Video（アニメ『銀河英雄伝説 Die Neue These 激突』テーマソング）.3gpp'),
     )..initialize().then((_) {
         // Ensure the first frame is shown
-        setState(() {});
+        
       });
+      print("ディレクトリ");
+      listApplicationDocumentsDirectories();
   }
+
+  getAllFiles() async {
+    Directory dir = await getApplicationDocumentsDirectory();
+    String videoDirPath = '${dir.path}/video';
+    Directory videoDir = Directory(videoDirPath);
+    List files = [];
+    if (videoDir.existsSync()) {
+    List<FileSystemEntity> videoDirectories = videoDir.listSync();
+
+      for (var videoDirectory in videoDirectories) {
+        if (videoDirectory is Directory) {
+          print('Directory: ${videoDirectory.path}');
+          // You can perform operations on each video directory here.
+        }
+         else if (videoDirectory is  File) {
+          files.add(videoDirectory.path);
+          // It's a Directory, you can access directory-specific properties here.
+          print('File: ${videoDirectory.path}');
+        }
+      }
+    } else {
+      print('The "video" directory does not exist in the Application Documents Directory.');
+    }
+    return files;
+  }
+
+  Future<void> listApplicationDocumentsDirectories() async {
+  Directory dir = await getApplicationDocumentsDirectory();
+  String videoDirPath = '${dir.path}/video';
+  Directory videoDir = Directory(videoDirPath);
+
+  if (videoDir.existsSync()) {
+    List<FileSystemEntity> videoDirectories = videoDir.listSync();
+
+    for (var videoDirectory in videoDirectories) {
+      if (videoDirectory is Directory) {
+        print('Directory: ${videoDirectory.path}');
+        // You can perform operations on each video directory here.
+      }
+       else if (videoDirectory is  File) {
+        // It's a Directory, you can access directory-specific properties here.
+        print('File: ${videoDirectory.path}');
+      }
+    }
+  } else {
+    print('The "video" directory does not exist in the Application Documents Directory.');
+  }
+}
+
+bool isVideoFile(File file) {
+  final videoExtensions = ['.mp4', '.avi', '.mov', '.mkv', '.wmv']; // Add more extensions if needed
+  return videoExtensions.contains(file.path.split('.').last);
+}
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+
         title: Text('Video Player Example'),
       ),
       body: Center(
